@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.user.dao.InquiryDao">
+
+	
+	<resultMap type="com.shop.table.vo.BoardInfoVO" id="boardMap">
+		<result property="userId" column="user_id" />
+		<result property="boardSeq" column="board_seq" />
+		<result property="boardType" column="board_type" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="attchFile" column="attch_file" />
+		<result property="replyYn" column="reply_yn" />
+		<result property="userName" column="user_name" />
+		<result property="regDt" column="reg_dt" />
+		<result property="delYn" column="del_yn" />
+		<result property="replyContent" column="reply_content" />
+		<result property="replyDt" column="reply_dt" />
+		
+	</resultMap>
+	
+	<select id="selectBoardList" resultMap="boardMap">
+	SELECT 
+         A.USER_NAME,
+         B.USER_ID,
+         B.BOARD_SEQ,
+         B.BOARD_TYPE,
+         B.TITLE,
+         B.CONTENT,
+         B.ATTCH_FILE,
+         B.REPLY_YN,
+         B.REPLY_CONTENT,
+         TO_CHAR(B.REG_DT, 'YYYY-MM-DD') REG_DT,
+         B.DEL_YN,
+         TO_CHAR(B.REPLY_DT, 'YYYY-MM-DD') REPLY_DT
+         FROM TB_USER_INFO A, TB_BOARD_INFO B
+         WHERE A.USER_ID = B.USER_ID
+         <if test="userName!=null and userName!=''">
+		and user_name like '%'||#{userName}||'%'
+		</if>
+		<if test="replyYn!=null and replyYn!=''">
+  		and reply_yn = #{replyYn}
+  		</if>
+  		<if test="regDtFrom!=null and regDtFrom!=''">
+  		and to_char(reg_dt,'yyyy-mm-dd') <![CDATA[ >= ]]> #{regDtFrom}
+  		</if>
+  		<if test="regDtTo!=null and regDtTo!=''">
+  		and to_char(reg_dt,'yyyy-mm-dd') <![CDATA[ <= ]]> #{regDtTo}
+  		</if>
+	</select>
+	
+	<select id="selectInquiry" resultMap="boardMap">
+	SELECT
+	B.TITLE,
+	B.BOARD_TYPE,
+	B.USER_ID,
+	A.USER_NAME,
+	TO_CHAR(B.REG_DT, 'YYYY-MM-DD')REG_DT,
+	B.ATTCH_FILE,
+	B.CONTENT,
+	B.REPLY_CONTENT
+	FROM TB_USER_INFO A, TB_BOARD_INFO B
+	WHERE A.USER_ID = B.USER_ID
+	AND B.USER_ID = #{userId}
+	AND B.BOARD_SEQ = #{boardSeq}
+	</select>
+	
+	<update id= "updateReply" >
+			UPDATE TB_BOARD_INFO
+			SET REPLY_CONTENT = #{replyContent},
+			REPLY_YN = 'Y', 
+			REPLY_DT = SYSDATE
+			WHERE USER_ID = #{userId}
+			AND BOARD_SEQ = #{boardSeq}
+	</update>
+</mapper>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.supplier.dao.SupplierInfoDao">
+	
+	<resultMap type="com.shop.table.vo.SupplierInfoVO" id="SupplierInfoMap">
+		<result property="supplierCd" column="supplier_cd" />
+		<result property="supplierName" column="supplier_name" />
+		<result property="supplierCeo" column="supplier_ceo" />
+		<result property="phone" column="phone" />
+		<result property="opName" column="op_name" />
+		<result property="opPhone" column="op_phone" />
+		<result property="opEmail" column="op_email" />
+		<result property="supplierStatus" column="supplier_status" />
+		<result property="regDt" column="reg_dt" />
+		
+		</resultMap>
+	
+	
+	<select id= "selectSupList" resultMap = "SupplierInfoMap">
+			SELECT 
+				SUPPLIER_CD,
+				SUPPLIER_NAME,
+				SUPPLIER_CEO,
+				PHONE,
+				OP_NAME,
+				OP_PHONE,
+				OP_EMAIL,
+				SUPPLIER_STATUS,
+				TO_CHAR(REG_DT , 'YYYY-MM-DD')REG_DT
+			FROM 
+				TB_SUPPLIER_INFO
+			WHERE 1=1
+				<if test="supplierStatus != null and supplierStatus !=''">
+				AND SUPPLIER_STATUS = #{supplierStatus}
+				</if>
+				<if test="supplierName != null and supplierName !=''">
+				AND SUPPLIER_NAME like '%' || #{supplierName} || '%'
+				</if>
+				<if test="supplierCd != null and supplierCd !=''">
+				AND SUPPLIER_CD = #{supplierCd}
+				</if>
+				
+		
+	</select>
+	
+	<update id = "updateSupplier">
+		UPDATE 
+			TB_SUPPLIER_INFO
+			
+		SET
+			SUPPLIER_NAME = #{supplierName},
+			SUPPLIER_CEO = #{supplierCeo},
+			PHONE = #{phone},
+			OP_NAME = #{opName},
+			OP_EMAIL = #{opEmail},
+			SUPPLIER_STATUS = #{supplierStatus}
+			
+		WHERE
+			SUPPLIER_CD = #{supplierCd}
+		
+		
+	</update>
+	
+	<insert id="insertSupplier">
+		INSERT INTO 
+			TB_SUPPLIER_INFO(
+				SUPPLIER_CD,
+				SUPPLIER_NAME, 
+				SUPPLIER_CEO,
+				PHONE,
+				OP_NAME,
+				OP_PHONE,
+				OP_EMAIL,
+				SUPPLIER_STATUS,
+				REG_DT
+		)
+		SELECT 
+			A.SUPPLIER_CD,
+			#{supplierName},
+			#{supplierCeo},
+			#{phone},
+			#{opName},
+			#{opPhone},
+			#{opEmail},
+			#{supplierStatus},
+			SYSDATE
+		FROM (SELECT
+			REPLACE('B'||TO_CHAR(SUBSTR(MAX(SUPPLIER_CD),2,3)+1,'000'),' ','')SUPPLIER_CD
+			  FROM TB_SUPPLIER_INFO)A
+			
+	</insert>
+</mapper>

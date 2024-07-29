@@ -1,0 +1,305 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+  
+  <main id="main" class="main">
+
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-12">
+
+          <div class="card">
+            <div class="card-body" style="padding-top: 20px;">
+              <!-- General Form Elements -->
+              <form id="searchform">
+              <table class="col-lg-12">
+              	<tr>
+              		<td>  	
+		                <th>상품명</th>
+		            </td>
+		            <td>
+		                <input type="text" style="width:200px;height:40px;" class="form-control" id="goodsName" name="goodsName">
+		            </td>
+		                  
+		                  <td>
+		                  <th>상품상태</th>
+		                  </td>
+		                  <td>
+		                    <select class="form-control" style="width:100px;height:40px;" id="status" name="status" >
+		                    	<option value=''>선택</option>
+		                    	<option value=''>판매중</option>
+		                    	<option value=''>판매종료</option>
+		                    	
+		                    </select>
+		                    </td>
+		                  <th>카테고리</th>
+    					<td>
+		                    <select class="form-control" style="width:100px;height:40px;" id="dae" name="dae" onchange="selecs($(this).val(),'2')">
+		                    	<option value=''>대</option>
+		                    	
+		                    </select>
+		                    </td>
+		                    <td>
+		                    <select class="form-control" style="width:100px;height:40px;" id="jong" name="jong" onchange="selecs($(this).val(), '3')"> 
+		                    	<option value=''>중</option>
+		                    	
+		                    </select>
+		                    </td>
+		                    <td>
+		                    <select class="form-control" style="width:100px;height:40px;" id="so" name="so"  onchange="selecs($(this).val(), '4')">
+		                    	<option value=''>소</option>
+		                    	
+		                    </select>
+		                    </td>
+		                    
+		                    <tr>
+		                    <td>
+		                    <th>거래처</th>
+		                    </td>
+		                    <td>
+		                    <select class="form-control" style="width:100px;height:40px;" id="" name=""  >
+		                    	<option value=''>선택</option>
+		                    	<option value=''>재욱제빵</option>
+		                    	<option value=''>범준식품</option>
+		                    	<option value=''>초밥조아</option>
+		                    	
+		                    </select>
+		                    </td>
+		                    <td rowspan="2">
+              			<button type="button" class="btn btn-info" onclick="search();">조회</button>
+              		</td>
+              		<td rowspan="2">
+              			<button type="button" class="btn btn-info" onclick="upload();">등록</button>
+              		</td>
+		                    </tr>
+		                  </table>
+		                </div>
+		           
+              		
+		               
+              	</tr>
+              </table>
+                
+                
+                
+              </form>
+              
+            </div>
+          </div>
+           <div class="card">
+            <div class="card-body">
+              <!-- Table with hoverable rows -->
+              <table class="table table-hover" id="boardTable">
+                <thead>
+                  <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">상품코드</th>
+                    <th scope="col">상품명</th>
+                    <th scope="col">카테고리</th>
+                    <th scope="col">판매가</th>
+                    <th scope="col">재고량</th>
+                    <th scope="col">등록일</th>
+                    <th scope="col">상품상태</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+              <!-- End Table with hoverable rows -->
+			  <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Previous">
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+                  <li class="page-item"><a class="page-link" href="#">1</a></li>
+                  <li class="page-item"><a class="page-link" href="#">2</a></li>
+                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                  <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+                </ul>
+              </nav><!-- End Pagination with icons -->
+			   	
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <div class="modal fade" id="inquiryInfo" tabindex="-1">
+       <div class="modal-dialog modal-xl modal-dialog-centered">
+         <div class="modal-content">
+           <div class="modal-header">
+             <h5 class="modal-title">고객문의</h5>
+             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+           </div>
+           <div class="modal-body">
+             <table class="table table-hover" id = "inquiryTable">
+                <thead>
+                  <tr>
+                    <tr>
+                    	<th scope="col">제목</th>
+                    	<td id="title"></td>
+                    </tr>
+                    <tr>
+                    	<th scope="col">유형</th>
+                    	<td id="boardType"></td>
+                    	</tr>
+                    <tr>
+                    	<th scope="col">회원ID</th>
+                    	<td id="userIdtxt"></td>
+                    	</tr>
+                    <tr>
+                    	<th scope="col">회원명</th>
+                    	<td id="userNametxt"></td>
+                    	</tr>
+                    <tr>
+                    	<th scope="col">문의일</th>
+                    	<td id= "regDt"></td>
+                    	</tr>
+                    <tr>
+                    	<th scope="col">첨부파일</th>
+                    	<td id="attchFile"></td>
+                    	</tr>
+                    <tr>
+                    	<th scope="col">문의내용</th>
+                    	<td id="content"></td>
+                    	</tr>
+                    <tr>
+                    	<th scope="col">답변내용</th>
+                    	<td><textarea  cols="50" rows="5" id="replyContent" ></textarea></td>
+                    	</tr>
+                </thead>
+                <tbody>
+              	</tbody>
+              </table>
+              
+            
+           </div>
+           <div class="modal-footer">
+             <button type="button" class="btn btn-primary" onclick="upReply()">답변등록</button>
+             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+           </div>
+         </div>
+       </div>
+     </div><!-- End Vertically centered Modal-->
+     
+     <form id="hiddenform">
+    <input type='hidden' id='upCtCd' name='upCtCd'>
+    <input type='hidden' id='ctCd' name='ctCd'>
+    <input type='hidden' id='ctLevel' name='ctLevel'>
+    <input type='hidden' id='ctName' name='ctName'>
+    <input type='hidden' id='goodsCd' name='goodsCd'>
+    
+    
+    
+    </form>
+     
+     
+     <script>
+     function selecs(cd,level){
+			console.log(cd);
+			console.log(level);
+			
+			if(level==2){
+				categoryName = $("#dae option:selected").text();
+			}else if(level==3){
+				categoryName = $("#jong option:selected").text();	
+			}else if(level==4){
+				categoryName = $("#so option:selected").text();
+			}else{
+				categoryName="";
+			}
+			
+			$("#categoryName").val(categoryName);
+			
+			
+			$('#upCtCd').val(cd);
+			$('#ctLevel').val(level);
+			$('#ctCd').val(cd);
+			
+			if(level<4){
+				call_server(hiddenform,'/categoryMenu', choiceDetail );
+			}
+		}
+		
+		//$('#so').empty();
+	    	$('#dae').empty();
+			$('#jong').empty();
+			$('#so').empty();
+		var firstOption = "<option value=''>대분류 선택</option>";
+	     $('#dae').append(firstOption);
+	     var secoundOption = "<option value=''>중분류 선택</option>";
+	     $('#jong').append(secoundOption);
+	     var threeOption = "<option value=''>소분류 선택</option>";
+	     $('#so').append(threeOption);
+	     
+		function choiceDetail(list){
+			if($('#ctLevel').val()==1){
+			
+			}else if($('#ctLevel').val()==2){
+				$('#jong').empty();
+	  			$('#so').empty();
+	  			
+	  	     var secoundOption = "<option value=''>중분류 선택</option>";
+	  	     $('#jong').append(secoundOption);
+	  	     var threeOption = "<option value=''>소분류 선택</option>";
+	  	     $('#so').append(threeOption);
+	  			
+			}else if ($('#ctLevel').val()==3){
+				$('#so').empty();
+				
+				var threeOption = "<option value=''>소분류 선택</option>";
+	  	  	     $('#so').append(threeOption);
+
+			}
+			
+			for(var i=0; i<list.length; i++){
+			  	str= "<option value='" +list[i].ctCd+ "' >" +list[i].ctName+ "</option >";
+			  	//str+= '<option value>';
+			  	if($('#ctLevel').val()==1){
+			  	$('#dae').append(str);
+			  	
+			  	}else if($('#ctLevel').val()==2){
+			  	$('#jong').append(str);
+			  	}else if($('#ctLevel').val()==3){
+			  	$('#so').append(str);
+			  	}
+			  
+		  }
+			
+		}
+		
+		selecs('','1');
+		
+		
+		function search(){
+			
+			call_server(hiddenform, '/searchList',getList);
+		}
+     
+		
+		function getList(list){
+			$('#boardTable > tbody').empty();
+			for (var i=0; i<list.length; i++){
+				str = '<tr>';
+				str += '<td></td>';
+				str += '<td>'+list[i].goodsCd+'</td>';
+				str += '<td>'+list[i].goodsName+'</td>';
+				str += '<td>'+list[i].ctName+'</td>';
+				str += '<td>'+list[i].sellPrice+'</td>';
+				str += '<td>'+list[i].ivQty+'</td>';
+				str += '<td>'+list[i].regDt+'</td>';
+				str += '<td>'+list[i].goodsStatus+'</td>';
+				str += '</tr>';
+				$('#boardTable > tbody').append(str);
+				
+			}
+		}
+     
+     </script>

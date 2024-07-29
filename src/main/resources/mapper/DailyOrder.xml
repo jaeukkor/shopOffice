@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.schedule.dao.DailyOrderDao">
+	
+	
+	<insert id="insertOrderList" >
+			INSERT INTO 
+				TB_DAILY_ORDER(
+					ORDER_DT,
+					GOODS_CD,
+					SELL_CNT,
+					SELL_PRICE,
+					REG_DT
+				)
+				
+			
+			SELECT 
+				ORDER_DT,
+				A.GOODS_CD,
+				(A.BUY_QTY)SELL_CNT,
+				(A.BUY_QTY * A.UNIT_PRICE)SELL_PRICE,
+				(SYSDATE)REG_DT
+			FROM TB_ORDER_GOODS A , TB_ORDER_INFO B
+			WHERE A.ORDER_NO = B.ORDER_NO
+			AND B.ORDER_DT = TO_CHAR(SYSDATE - 1, 'YYYY-MM-DD')
+		</insert>
+	
+
+</mapper>

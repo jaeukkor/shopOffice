@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.goods.dao.GoodsInfoDao">
+	
+	<resultMap type="com.shop.table.vo.GoodsInfoVO" id="goodsInfoMap">
+		<result property="goodsCd" column="goods_cd" />
+		<result property="ctCd" column="ct_cd" />
+		<result property="goodsName"  column="goods_name" />
+		<result property="normalPrice"  column="normal_price" />
+		<result property="sellPrice" column="sell_price" />
+		<result property= "ivQty" column="iv_qty" />
+		<result property= "goodsStatus" column="goods_status" />
+		<result property= "supplierCd" column="supplier_cd" />
+		<result property= "thumnailUrl" column="thumnail_url" />
+		<result property= "content" column= "content"/>
+		<result property="ctName" column="ct_name" />
+		<result property="ctLevel" column="ct_level" />
+		<result property="upCtCd" column="up_ct_cd" />
+		<result property="regDt" column="reg_dt" />
+		
+		
+		
+	</resultMap>
+	
+	<resultMap type="com.shop.table.vo.SupplierInfoVO" id="supplierMap">
+		<result property="supplierCd" column="supplier_cd" />
+		<result property="supplierName" column="supplier_name" />
+	</resultMap>
+	
+	<select id="selectGoodsList" resultMap="goodsInfoMap">
+		SELECT 
+			CT_CD,
+			CT_NAME,
+			CT_LEVEL,
+			UP_CT_CD,
+			TO_CHAR(REG_DT, 'YYYY-MM-DD')REG_DT
+		FROM TB_GOODS_CATEGORY
+		WHERE 1=1
+		and ct_level = #{ctLevel}
+		<if test = "upCtCd != null and upCtCd!=''">
+		and up_ct_cd = #{upCtCd}
+		</if>
+		<if test = "ctCd != null and ctCd!=''">
+		 AND UP_CT_CD = SUBSTR(#{ctCd},1,(#{ctLevel}-1)*2)
+		</if>
+</select>
+
+
+	<select id="selectSearchList" resultMap="goodsInfoMap">
+		SELECT 
+			B.GOODS_CD,
+			B.GOODS_NAME,
+			(
+            SELECT 
+            LPAD('', (LEVEL))|| LTRIM(SYS_CONNECT_BY_PATH(CT_NAME, '>'), '>') 
+                FROM 
+                    TB_GOODS_CATEGORY
+                WHERE
+                    CT_CD = B.CT_CD
+                START WITH 
+                    UP_CT_CD IS NULL
+                CONNECT BY 
+                    PRIOR CT_CD = UP_CT_CD
+                ) CT_NAME,
+			B.SELL_PRICE,
+			B.IV_QTY,
+			TO_CHAR(B.REG_DT, 'YYYY-MM-DD')REG_DT,
+			B.GOODS_STATUS
+		FROM TB_GOODS_CATEGORY A ,TB_GOODS_INFO B
+        WHERE B.CT_CD = A.CT_CD(+) 
+		
+		<if test = "goodsCd != null and goodsCd!=''">
+		and goods_Cd = #{goodsCd}
+		</if>
+		<if test="ctCd!=null and ctCd!=''">
+		and B.ct_Cd = #{ctCd}
+		</if>
+		<if test="supplierCd!=null and supplierCd!=''">
+		and B.supplier_Cd = #{supplierCd}
+		</if>
+		<if test="so!=null and so!=''">
+		and B.CT_Cd = #{so}
+		</if>
+		
+		<if test="goodsStatus!=null and goodsStatus!=''">
+		and B.GOODS_STATUS = #{goodsStatus}
+		</if>
+		<if test="goodsName!=null and goodsName!=''">
+		and B.GOODS_NAME = #{goodsName}
+		</if>
+</select>
+	
+	
+
+	<select id="selectSupplierList" resultMap="supplierMap">
+		SELECT 
+			SUPPLIER_CD, SUPPLIER_NAME
+		FROM TB_SUPPLIER_INFO
+	</select>
+	
+	<select id="selectDetail" resultMap="goodsInfoMap">
+	   	SELECT
+	   		B.GOODS_CD,
+	   		B.GOODS_NAME,
+	   		B.NORMAL_PRICE,
+	   		B.SELL_PRICE,
+	   		B.IV_QTY,
+	   		B.GOODS_STATUS,
+	   		A.CT_CD,
+	   		A.CT_NAME,
+	   		A.CT_LEVEL,
+	   		B.SUPPLIER_CD,
+	   		B.THUMNAIL_URL,
+	   		B.CONTENT
+	   		
+	   	FROM 
+	   		TB_GOODS_CATEGORY A, 
+	   		TB_GOODS_INFO B
+	   		
+	   	WHERE 
+	   		A.CT_CD = B.CT_CD
+	   
+	   	AND
+	   		GOODS_CD = #{goodsCd}	   		
+	
+	</select>
+	
+	<update id="updateGoods" >
+		UPDATE TB_GOODS_INFO  SET 
+		     GOODS_NAME = #{goodsName},
+		  	 NORMAL_PRICE = #{normalPrice},
+			 SELL_PRICE = #{sellPrice},
+			 IV_QTY = #{ivQty},
+			 CT_CD = #{sso},
+			 CONTENT = #{content},
+			 THUMNAIL_URL = #{thumnailUrl},
+			 GOODS_STATUS = #{goodsStatus}
+	    WHERE GOODS_CD = #{goodsCd}
+		
+	</update>
+	
+	<insert id="insertGoods" >
+		INSERT INTO TB_GOODS_INFO(
+			GOODS_CD,
+			GOODS_NAME,
+			CT_CD,
+			NORMAL_PRICE,
+			SELL_PRICE,
+			IV_QTY,
+			GOODS_STATUS,
+			<if test="supplierCd!=null and supplierCd!=''">
+			SUPPLIER_CD,
+			</if>
+			<if test="thumnailUrl!=null and thumnailUrl!=''">
+			THUMNAIL_URL,
+			</if>
+			CONTENT,
+			REG_DT
+			)
+		VALUES 
+			(#{goodsCd},
+			#{goodsName},
+			#{sso},
+			#{normalPrice},
+			#{sellPrice},
+			#{ivQty},
+			#{goodsStatus},
+			<if test="supplierCd!=null and supplierCd!=''">
+			#{supplierCd},
+			</if>
+			<if test="thumnailUrl!=null and thumnailUrl!=''">
+			#{thumnailUrl},
+			</if>
+			#{content},
+			SYSDATE
+			)
+		
+		
+		
+		
+	
+	</insert>
+
+</mapper>

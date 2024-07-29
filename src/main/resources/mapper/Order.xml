@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.order.dao.OrderGoodsDao">
+
+
+	<resultMap type="com.shop.table.vo.OrderInfoVO" id="orderMap">
+		<result property="orderNo" column="order_no" />
+		<result property="userId" column="user_id" />
+		<result property="orderGoodsName" column="order_goods_name" />
+		<result property="orderPrice" column="order_price" />
+		<result property="orderStatus" column="order_status" />
+		<result property="orderDt" column="order_dt" />
+		<result property="receiveName" column="receive_name" />
+		
+		<result property="receivePhone" column="receive_phone" />
+		
+		<result property="zipcd" column="zipcd" />
+		<result property="addr" column="addr" />
+		<result property="addrDtl" column="addr_dtl" />
+		<result property="memo" column="memo" />
+		<result property="regDt" column="reg_dt" />
+		<result property="payWay" column="pay_way" />
+		
+		
+		<result property="userName" column="user_name" />
+		
+	</resultMap>
+	
+	<resultMap type="com.shop.table.vo.OrderGoodsVO" id="orderGoodsMap">
+		<result property="orderNo" 		column="ORDER_NO" />
+		<result property="goodsCd" 		column="GOODS_CD" />
+		<result property="goodsName" 	column="GOODS_NAME" />
+		<result property="unitPrice" 	column="UNIT_PRICE" />
+		<result property="buyQty" 		column="BUY_QTY" />
+		<result property="ivQty" 		column="IV_QTY" />
+		<result property="ctName" 		column="CT_NAME" />
+	</resultMap>
+	
+		
+		<select id="selectOrderList" resultMap="orderMap">
+				SELECT 
+					A.ORDER_NO,
+					B.USER_NAME,
+					A.USER_ID,
+					A.ORDER_GOODS_NAME,
+					A.ORDER_PRICE,
+					A.ORDER_STATUS,
+					TO_CHAR(A.ORDER_DT, 'YYYY-MM-DD')ORDER_DT,
+					A.RECEIVE_NAME,
+					A.RECEIVE_PHONE,
+					A.ZIPCD,
+					A.ADDR,
+					A.ADDR_DTL,
+					A.MEMO,
+					A.PAY_WAY,
+					TO_CHAR(A.REG_DT,'YYYY-MM-DD')REG_DT
+				FROM TB_ORDER_INFO A, TB_USER_INFO B
+				
+				WHERE A.USER_ID = B.USER_ID
+				<if test= "orderStatus !=null and orderStatus!=''">
+				and ORDER_STATUS = #{orderStatus}
+				</if>
+				<if test= "userName !=null and userName!=''">
+				and USER_NAME like '%' || #{userName} || '%'
+				</if>
+				<!--if test= "orderStatus !=null and orderStatus!=''">
+				and ORDER_STATUS = #{orderStatus}
+				</if>
+				< if test = "withdrawDtFrom !=null and withdrawDtFrom!='' ">
+	            and to_char(withdraw,'yyyy-mm-dd') <![CDATA[ >= ]]> #{withdrawDtFrom}
+	            </if>
+	            <if test = "withdrawDtTo !=null and withdrawDtTo!='' ">
+	            and to_char(withdraw,'yyyy-mm-dd') <![CDATA[ <= ]]> #{withdrawDtTo}
+	            </if-->
+				ORDER BY ORDER_NO
+		</select>
+		
+		
+		
+		<update id="updateOrderStatus">
+			UPDATE 
+				TB_ORDER_INFO
+			SET
+				ORDER_STATUS = #{orderStatus}
+			WHERE 
+				ORDER_NO IN (
+				<foreach item="orderno" collection="ordernolist" separator="," >
+			        #{orderno}
+			  </foreach>
+				) 
+		</update>
+		
+		<select id="selectOrderDetail" resultMap = "orderMap">
+			SELECT 
+				A.ORDER_NO,
+				B.USER_NAME,
+				A.USER_ID,
+				A.ORDER_GOODS_NAME,
+				A.ORDER_PRICE,
+				A.ORDER_STATUS,
+				TO_CHAR(A.ORDER_DT, 'YYYY-MM-DD')ORDER_DT,
+				A.RECEIVE_NAME,
+				A.RECEIVE_PHONE,
+				A.ZIPCD,
+				A.ADDR,
+				A.ADDR_DTL,
+				A.PAY_WAY,
+				A.MEMO,
+				TO_CHAR(A.REG_DT,'YYYY-MM-DD')REG_DT
+			FROM TB_ORDER_INFO A, TB_USER_INFO B
+			WHERE A.USER_ID = B.USER_ID
+			 AND A.ORDER_NO = #{orderNo}
+		</select>
+		
+		<select id= "selectOrderGoodsList" resultMap = "orderGoodsMap">
+		 		SELECT
+					A.ORDER_NO,
+					A.GOODS_CD,
+					B.GOODS_NAME,
+					A.UNIT_PRICE,
+					A.BUY_QTY,
+					B.IV_QTY,
+                    (
+                    SELECT 
+                    LPAD('', (LEVEL))|| LTRIM(SYS_CONNECT_BY_PATH(CT_NAME, '>'), '>') 
+                        FROM 
+                            TB_GOODS_CATEGORY
+                        WHERE
+                            CT_CD = C.CT_CD
+                        START WITH 
+                            UP_CT_CD IS NULL
+                        CONNECT BY 
+                            PRIOR CT_CD = UP_CT_CD
+                     ) CT_NAME
+				FROM 
+					TB_ORDER_GOODS A, TB_GOODS_INFO B, TB_GOODS_CATEGORY C
+				WHERE
+				
+                	A.GOODS_CD = B.GOODS_CD
+                AND B.CT_CD = C.CT_CD    
+				AND
+                	A.ORDER_NO = #{orderNo}
+		 		
+		</select>
+		
+		
+	
+</mapper>
